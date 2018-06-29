@@ -3,12 +3,78 @@
   <head>
     <title>XOR_ANN2</title>
     <script src="node_modules/mathjs/dist/math.js" type="text/javascript"></script>
+    <script src="node_modules/chart.js/dist/Chart.js"></script>
     <!--<script src="train_function.js"></script>-->
     <!--<script src="XOR2_ANN.js"></script>-->
     <script src="matrix_math.js"></script>
     <script src="copy_XOR2_ANN.js"></script>
   </head>
+
   <body>
-    <P>XOR2_ANN</p>
+    <p> XOR2_ANN</p>
+    <div class="chart-container" style="position: relative; height:20vh; width:97vw">
+      <canvas id="myChart"></canvas>
+    </div>
   </body>
+  <div>
+    <script>
+
+    var iteration_size = localStorage.getItem('num_of_iterations');
+    var target_array = JSON.parse(localStorage.getItem('target'));
+    var results_array = JSON.parse(localStorage.getItem('results'));
+    var delta_e_array = JSON.parse(localStorage.getItem('delta_e'));
+    console.log(delta_e_array);
+
+
+    function increment_array (max){
+      let array = new Array(max);
+      for (let i=1; i <= max; i++){
+        array[i-1]=i;
+      }
+      return array;
+    }
+
+    var xlabels = increment_array(iteration_size);
+
+    var ctx = document.getElementById("myChart");//.getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+          datasets: [
+            {
+              label: 'change in error',
+              backgroundColor: "#9CC8FA",
+              borderColor: "#1858EC",
+              borderWidth: 2,
+              data: delta_e_array
+
+          },{
+              label: 'Target data results',
+              backgroundColor: "#CFE9C6",
+              borderColor: "#58A041",
+              borderWidth: 2,
+              data: target_array
+          },{
+              label: 'Actual Resulst',
+              backgroundColor: "#EB5319",
+              borderColor: "#F69B8C",
+              borderWidth: 2,
+              data: results_array
+          }],
+          labels: xlabels
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      //suggestedMin: -2,
+                      //suggestedMax: 3
+                  }
+              }]
+          }
+      }
+    });
+    </script>
+  </div>
+
 </html>

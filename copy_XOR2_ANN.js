@@ -61,7 +61,7 @@ function FORWARD_PROPAGATION(x, w1, w2){
   // w1 and w2 -> are the weights on the fisrt and second columns of synapses
   // z2 and z3 -> are the values of the weights and nodes multipied together
   // a2 -> is the values that sit in the hidden nodes
-  // y_hat -> is the unhelpful output
+  // y_hat -> is the ANN's best guess
   var z2 = math.multiply(x,w1);
   var a2 = SIGMOID(z2);
   var z3 = math.multiply(a2,w2);
@@ -74,6 +74,7 @@ function BACK_PROPAGATION(x, w1, w2, z2, a2, z3, y_hat, y){
   //This fuction will calculate the cost function and perform gradient descent.
   //It should be noted that for this particular ANN there is only one out put
   //so the cost function might be contrived in favor of this aspact.
+  // y is the correct answer the number the ANN is trying to achive
   // e -> error size
   // j -> cost function
   // d3 -> backpropagating error for the third row of nodes
@@ -89,12 +90,12 @@ function BACK_PROPAGATION(x, w1, w2, z2, a2, z3, y_hat, y){
   var d2 = math.cross(da,f_prime_z2);
   var djdw1 = math.multiply(math.transpose(x),d2);
   //return [e,f_prime_z3,d3,djdw2,f_prime_z2,djdw1];
-  return [djdw2,djdw1];
+  return [e,djdw2,djdw1];
 
 }
 
 function WEIGHT_CHANGE(w1,w2,djdw1,djdw2){
-  //This function chnages the weights ofter every iteration
+  //This function chnages the weights after every iteration
   new_weight1 = math.subtract(w1,djdw1);
   new_weight2 = math.subtract(w2,djdw2);
   return [new_weight1, new_weight2];
@@ -105,7 +106,7 @@ function WEIGHT_CHANGE(w1,w2,djdw1,djdw2){
 var input_nodes_size = 2;
 var hidden_nodes_size = 3;
 var output_nodes_size = 1;
-var num_of_iterations = 20;
+var num_of_iterations = 50;
 //This for loop makes an array full of input arrays
 var input_vec = [];
 for ( i = 0; i < num_of_iterations; i++){
@@ -115,34 +116,47 @@ for ( i = 0; i < num_of_iterations; i++){
   input_vec[i] = math.matrix([vec]);
 }
 console.log('********************************');
-console.log(input_vec);
+console.log(input_vec[0]);
 console.log('********************************');
 //The below line of code initiates the ANN with randome values in weights1 and weights2
 var [input, weights1, weights2]=ANN_LAYER_SETUP(input_vec[0],input_nodes_size,hidden_nodes_size,output_nodes_size);
+var target = [];
+var results = [];
+var delta_e = [];
 //The below for loop is what performs foward and back propagation on every iteration.
 for ( i = 0; i < num_of_iterations; i++){
   console.log('this is '+i+' iteration');
   input = input_vec[i];
+
   //target is the wanted output
-  var target = 0;
   if (input.subset(math.index(0,0)) != input.subset(math.index(0,1))){
-    target = 1;
+    target[i] = 1;
+  }else {
+    target[i] = 0;
   }
+  //the bellow is for testing a constant input
+  //input = math.matrix([[0,0]]);
+//  target[i]=0;
   var [z2, a2, z3, y_hat]=FORWARD_PROPAGATION(input, weights1, weights2);
-  var [djdw2,djdw1]=BACK_PROPAGATION(input, weights1, weights2, z2, a2, z3, y_hat,target);
+  var [e,djdw2,djdw1]=BACK_PROPAGATION(input, weights1, weights2, z2, a2, z3, y_hat,target[i]);
+  delta_e[i] = e._data[0];
   //NEED TO TEST THIS FUNCTION!!!!!!!!!!!!!!!
   var [weights1, weights2]=WEIGHT_CHANGE(weights1,weights2,djdw1,djdw2);
+  results[i] = y_hat._data[0];
   console.log('input');
   console.log(input._data[0]);
   console.log('expected');
-  console.log(target);
+  console.log(target[i]);
   console.log('output');
   console.log(y_hat._data[0]);
   console.log('--------------------');
 }
 
-
-
+//these next few lines sends data to html to plot in chart.js
+localStorage.setItem("num_of_iterations", num_of_iterations);
+localStorage.setItem("target", JSON.stringify(target));
+localStorage.setItem("results", JSON.stringify(results));
+localStorage.setItem("delta_e", JSON.stringify(delta_e));
 
 
 //**************************** Random Testing ************************
