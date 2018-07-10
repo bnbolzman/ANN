@@ -63,6 +63,11 @@ function FORWARD_PROPAGATION(x, w1, w2){
   // a2 -> is the values that sit in the hidden nodes
   // y_hat -> is the ANN's best guess
   var z2 = math.multiply(x,w1);
+
+  let a = math.matrix([[1,2],[3,4],[3,4]]);
+  console.log('a');
+  console.log(a);
+
   var a2 = SIGMOID(z2);
   var z3 = math.multiply(a2,w2);
   var y_hat = SIGMOID(z3);
@@ -78,16 +83,25 @@ function BACK_PROPAGATION(x, w1, w2, z2, a2, z3, y_hat, y){
   // e -> error size
   // j -> cost function
   // d3 -> backpropagating error for the third row of nodes
-  // d2 -> backpropagating error for the secod row of nodes
+  // d2 -> backpropagating error for the second row of nodes
   // f_prime_z3 -> z3 in sigmoid prime
   // f_prime_z2 -> z2 in the sigmoid prime
-  var e = math.subtract(y,y_hat);
+  var e = math.subtract(y_hat,y);
   var f_prime_z3 = SIGMOID_PRIME(z3);
   var d3 = math.multiply(e,f_prime_z3);
   var djdw2 = math.multiply(math.transpose(a2),d3);
   var f_prime_z2 = SIGMOID_PRIME(z2);
   var da = math.multiply(d3,math.transpose(w2));
-  var d2 = math.cross(da,f_prime_z2);
+  console.log('w2');
+  console.log(w2);
+  console.log('djdw2');
+  console.log(djdw2);
+  console.log('da below');
+  console.log(da);
+  console.log('f_prime_z2 below');
+  console.log(f_prime_z2);
+  //math.dotMultiply([1,2,3,4],[5,6,7,8]);
+  var d2 = math.dotMultiply(da,f_prime_z2);
   var djdw1 = math.multiply(math.transpose(x),d2);
   //return [e,f_prime_z3,d3,djdw2,f_prime_z2,djdw1];
   return [e,djdw2,djdw1];
@@ -101,12 +115,13 @@ function WEIGHT_CHANGE(w1,w2,djdw1,djdw2){
   return [new_weight1, new_weight2];
 }
 
+
 //**************************** Training the ANN *************************
 //Fedding The ANN With Inputs
 var input_nodes_size = 2;
 var hidden_nodes_size = 3;
 var output_nodes_size = 1;
-var num_of_iterations = 50;
+var num_of_iterations = 100;
 //This for loop makes an array full of input arrays
 var input_vec = [];
 for ( i = 0; i < num_of_iterations; i++){
@@ -120,9 +135,13 @@ console.log(input_vec[0]);
 console.log('********************************');
 //The below line of code initiates the ANN with randome values in weights1 and weights2
 var [input, weights1, weights2]=ANN_LAYER_SETUP(input_vec[0],input_nodes_size,hidden_nodes_size,output_nodes_size);
+//declaring variables that will are used in the for loop.
 var target = [];
 var results = [];
 var delta_e = [];
+var counter = 0 ;
+var onecounter = 0;
+var zerocounter = 0;
 //The below for loop is what performs foward and back propagation on every iteration.
 for ( i = 0; i < num_of_iterations; i++){
   console.log('this is '+i+' iteration');
@@ -134,9 +153,10 @@ for ( i = 0; i < num_of_iterations; i++){
   }else {
     target[i] = 0;
   }
-  //the bellow is for testing a constant input
-  //input = math.matrix([[0,0]]);
-//  target[i]=0;
+  //vvvvvvvvvvvthe bellow is for testing a constant input
+  //input = math.matrix([[0,1]]);
+  //target[i]=1;
+  //^^^^^^^^^^^^^^^^^^^
   var [z2, a2, z3, y_hat]=FORWARD_PROPAGATION(input, weights1, weights2);
   var [e,djdw2,djdw1]=BACK_PROPAGATION(input, weights1, weights2, z2, a2, z3, y_hat,target[i]);
   delta_e[i] = e._data[0];
@@ -150,8 +170,18 @@ for ( i = 0; i < num_of_iterations; i++){
   console.log('output');
   console.log(y_hat._data[0]);
   console.log('--------------------');
+  if (y_hat._data[0] > 0.99 && target[i] == 1){
+    onecounter +=1;
+    counter +=1;
+  } else if (y_hat._data[0] < 0.01 && target[i] == 0){
+    zerocounter +=1;
+    counter +=1;
+  }
 }
-
+console.log("num of corrent gusses");
+console.log(counter+': '+(counter/num_of_iterations*100)+'%');
+console.log(onecounter+': '+(onecounter/counter*100)+'%');
+console.log(zerocounter+': '+(zerocounter/counter*100)+'%');
 //these next few lines sends data to html to plot in chart.js
 localStorage.setItem("num_of_iterations", num_of_iterations);
 localStorage.setItem("target", JSON.stringify(target));

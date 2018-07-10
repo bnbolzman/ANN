@@ -20,21 +20,33 @@
     <script>
 
     var iteration_size = localStorage.getItem('num_of_iterations');
-    var target_array = JSON.parse(localStorage.getItem('target'));
-    var results_array = JSON.parse(localStorage.getItem('results'));
-    var delta_e_array = JSON.parse(localStorage.getItem('delta_e'));
-    console.log(delta_e_array);
+    var target_arraya = JSON.parse(localStorage.getItem('target'));
+    var results_arraya = JSON.parse(localStorage.getItem('results'));
+    var delta_e_arraya = JSON.parse(localStorage.getItem('delta_e'));
 
 
-    function increment_array (max){
-      let array = new Array(max);
-      for (let i=1; i <= max; i++){
-        array[i-1]=i;
+
+
+
+    //function increment_array (max,target_arraya){
+      var xlabels = new Array();
+      var target_array = new Array();
+      var results_array = new Array();
+      var delta_e_array = new Array();
+      var  j = 0;
+      var min = 1;
+      for (let i=min; i <= iteration_size; i++){
+        xlabels[i-min] = i;
+        target_array[j] = target_arraya[i];
+        results_array[j] = results_arraya[i];
+        delta_e_array[j] = delta_e_arraya[i];
+        j++;
       }
-      return array;
-    }
 
-    var xlabels = increment_array(iteration_size);
+  //    return array;
+  //  }
+
+    //var xlabels = increment_array(iteration_size,target_arraya);
 
     var ctx = document.getElementById("myChart");//.getContext('2d');
     var myChart = new Chart(ctx, {
@@ -42,24 +54,27 @@
       data: {
           datasets: [
             {
-              label: 'change in error',
-              backgroundColor: "#9CC8FA",
-              borderColor: "#1858EC",
-              borderWidth: 2,
+/*              label: 'change in error',
+              //backgroundColor: "#9CC8FA",
+              pointStyle: 'circle',
+              //borderColor: "#1858EC",
+              //borderWidth: 2,
               data: delta_e_array
-
+*/
           },{
               label: 'Target data results',
-              backgroundColor: "#CFE9C6",
+              //backgroundColor: "#CFE9C6",
               borderColor: "#58A041",
               borderWidth: 2,
               data: target_array
+
           },{
               label: 'Actual Resulst',
               backgroundColor: "#EB5319",
               borderColor: "#F69B8C",
               borderWidth: 2,
               data: results_array
+
           }],
           labels: xlabels
       },
